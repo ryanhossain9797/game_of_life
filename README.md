@@ -51,6 +51,21 @@ Run multiple generations with unicode output:
 cargo run --release -- -g 5 -m unicode
 ```
 
+### Glider Spaceship
+
+The glider is a famous pattern that moves diagonally across the grid:
+
+```
+. # .
+. . #
+# # #
+```
+
+Run the glider:
+```bash
+cargo run --release -- -c "1,0;2,1;0,2;1,2;2,2" -g 20
+```
+
 ## Library
 
 The core game logic is in `game_of_life_lib/` and can be used as a library.

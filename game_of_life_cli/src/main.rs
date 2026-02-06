@@ -96,11 +96,7 @@ fn print_grid(gen: &Generation, unicode: bool) {
                     print!("O ");
                 }
             } else {
-                if unicode {
-                    print!("  ");
-                } else {
-                    print!("  ");
-                }
+                print!("  ");
             }
         }
         println!();
