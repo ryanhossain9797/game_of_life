@@ -1,6 +1,6 @@
 [workspace]
 members = [
     "game_of_life",
-    "cli",
+    "cli", "wasm",
 ]
 resolver = "3"
