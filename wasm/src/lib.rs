@@ -12,6 +12,14 @@ pub struct Life {
 pub struct WasmPoint(u32, u32);
 
 #[wasm_bindgen]
+impl WasmPoint {
+    #[wasm_bindgen(constructor)]
+    pub fn new(x: u32, y: u32) -> WasmPoint {
+        WasmPoint(x, y)
+    }
+}
+
+#[wasm_bindgen]
 impl Life {
     #[wasm_bindgen(constructor)]
     pub fn new(initial: Vec<WasmPoint>, width: u32, height: u32) -> Life {
