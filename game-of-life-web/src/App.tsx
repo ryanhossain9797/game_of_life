@@ -4,6 +4,8 @@ import init, { Life, WasmPoint } from '../wasm/wasm.js';
 import './App.css'
 
 function App() {
+  const [life, setLife] = useState<Life | null>(null);
+
   useEffect(() => {
     async function loadWasm() {
       await init();
@@ -15,6 +17,9 @@ function App() {
         new WasmPoint(1, 2),
         new WasmPoint(2, 2),
       ];
+
+      const game: Life = new Life(initialCells, 20, 20);
+      setLife(game);
     }
     loadWasm();
   }, []);
