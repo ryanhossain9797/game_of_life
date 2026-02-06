@@ -1,73 +1,63 @@
-# React + TypeScript + Vite
+# Game of Life Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React implementation of Conway's Game of Life using Rust WebAssembly.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Rust toolchain with wasm32 target
+- Node.js and npm
+- wasm-bindgen-cli
 
-## React Compiler
+## Building the WASM Module
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Build WASM and generate bindings
+just build-wasm
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Or manually:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+rustup target add wasm32-unknown-unknown
+cargo build --release --target wasm32-unknown-unknown -p wasm
+mkdir -p game-of-life-web/wasm
+wasm-bindgen --target web --out-dir game-of-life-web/wasm target/wasm32-unknown-unknown/release/wasm.wasm
 ```
+
+## Running the React App
+
+```bash
+cd game-of-life-web
+npm install
+npm run dev
+```
+
+## Features
+
+- **Interactive Grid**: Click on cells to toggle them alive/dead
+- **Animation Controls**: Start, pause, and reset the simulation
+- **Speed Control**: Adjust the simulation speed with a slider
+- **Generation Counter**: Track the current generation number
+- **Live Cell Counter**: See how many cells are currently alive
+
+## Game Rules
+
+1. Any live cell with fewer than two live neighbors dies (underpopulation)
+2. Any live cell with two or three live neighbors lives on
+3. Any live cell with more than three live neighbors dies (overpopulation)
+4. Any dead cell with exactly three live neighbors becomes alive (reproduction)
+
+## Controls
+
+- **Click on grid**: Toggle cell state
+- **Start/Pause**: Toggle animation
+- **Reset**: Reset to initial glider pattern
+- **Clear**: Clear all cells
+- **Speed slider**: Adjust animation speed (10ms - 500ms)
+
+## Technical Details
+
+- **Frontend**: React with TypeScript
+- **Build Tool**: Vite
+- **WASM**: Rust compiled to WebAssembly
+- **Rendering**: HTML5 Canvas
