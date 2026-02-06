@@ -14,11 +14,6 @@ impl Point {
     }
 }
 
-/// Returns the set of valid neighboring points for a given point within bounds.
-///
-/// A neighbor is any of the 8 surrounding cells (including diagonals).
-/// Points outside the bounds (x > x_max, y > y_max) or with usize underflow
-/// are filtered out.
 pub fn neighbors(point: Point, x_max: usize, y_max: usize) -> HashSet<Point> {
     let mut result = HashSet::new();
 
@@ -48,28 +43,15 @@ pub fn neighbors(point: Point, x_max: usize, y_max: usize) -> HashSet<Point> {
     result
 }
 
-/// A set of live cells
-pub type CellSet = HashSet<Point>;
-
 /// The core state for Conway's Game of Life
-pub struct GameState {
-    /// Maximum x coordinate (inclusive)
-    x_max: usize,
-    /// Maximum y coordinate (inclusive)
-    y_max: usize,
-    /// Current set of live cells
-    live_cells: CellSet,
+pub(crate) struct GameState {
+    pub x_max: usize,
+    pub y_max: usize,
+    pub live_cells: HashSet<Point>,
 }
 
 impl GameState {
-    /// Creates a new GameState with the given dimensions and initial live cells
-    ///
-    /// # Arguments
-    ///
-    /// * `x_max` - Maximum x coordinate (inclusive)
-    /// * `y_max` - Maximum y coordinate (inclusive)
-    /// * `initial_live_cells` - Set of initial live cell positions
-    pub fn new(x_max: usize, y_max: usize, initial_live_cells: CellSet) -> Self {
+    pub fn new(x_max: usize, y_max: usize, initial_live_cells: HashSet<Point>) -> Self {
         Self {
             x_max,
             y_max,
@@ -77,26 +59,7 @@ impl GameState {
         }
     }
 
-    /// Returns a reference to the current live cells
-    pub fn live_cells(&self) -> &CellSet {
-        &self.live_cells
-    }
-
-    /// Returns the x dimension boundary (inclusive)
-    pub fn x_max(&self) -> usize {
-        self.x_max
-    }
-
-    /// Returns the y dimension boundary (inclusive)
-    pub fn y_max(&self) -> usize {
-        self.y_max
-    }
-
-    /// Builds the set of points to evaluate for the next generation.
-    ///
-    /// These are all current live cells plus all their neighbors.
-    /// Any cell not in this set cannot change state.
-    pub fn points_to_evaluate(&self) -> CellSet {
+    pub fn points_to_evaluate(&self) -> HashSet<Point> {
         let mut points = self.live_cells.clone();
 
         for &cell in &self.live_cells {
@@ -109,7 +72,7 @@ impl GameState {
 }
 
 impl Iterator for GameState {
-    type Item = CellSet;
+    type Item = HashSet<Point>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let points_to_evaluate = self.points_to_evaluate();
@@ -187,21 +150,22 @@ mod tests {
 
     #[test]
     fn test_gamestate_creation() {
-        let initial_cells: CellSet = vec![Point::new(1, 1), Point::new(2, 2), Point::new(0, 0)]
-            .into_iter()
-            .collect();
+        let initial_cells: HashSet<Point> =
+            vec![Point::new(1, 1), Point::new(2, 2), Point::new(0, 0)]
+                .into_iter()
+                .collect();
 
         let state = GameState::new(10, 10, initial_cells.clone());
 
-        assert_eq!(state.x_max(), 10);
-        assert_eq!(state.y_max(), 10);
-        assert_eq!(state.live_cells(), &initial_cells);
+        assert_eq!(state.x_max, 10);
+        assert_eq!(state.y_max, 10);
+        assert_eq!(&state.live_cells, &initial_cells);
     }
 
     #[test]
     fn test_points_to_evaluate() {
         // Two cells at (1,1) and (3,3)
-        let initial_cells: CellSet = vec![Point::new(1, 1), Point::new(3, 3)]
+        let initial_cells: HashSet<Point> = vec![Point::new(1, 1), Point::new(3, 3)]
             .into_iter()
             .collect();
 
