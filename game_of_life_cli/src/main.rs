@@ -2,6 +2,9 @@ use clap::{Parser, ValueEnum};
 use game_of_life_lib::{GameState, Point};
 use std::collections::HashSet;
 use std::fmt;
+use std::io::Write;
+use std::thread;
+use std::time::Duration;
 
 #[derive(Debug, Clone, ValueEnum)]
 enum OutputMode {
@@ -41,6 +44,10 @@ struct Args {
     /// Number of generations to run
     #[arg(short, long, default_value = "1")]
     generations: usize,
+
+    /// Delay between generations in milliseconds
+    #[arg(short, long, default_value = "100")]
+    delay: u64,
 }
 
 #[derive(Debug)]
@@ -100,6 +107,11 @@ fn print_grid(live_cells: &HashSet<Point>, width: usize, height: usize, unicode:
     }
 }
 
+fn clear_screen() {
+    print!("\x1B[2J\x1B[1;1H");
+    let _ = std::io::stdout().flush();
+}
+
 fn main() {
     let args = Args::parse();
 
@@ -110,11 +122,15 @@ fn main() {
     let mut state = GameState::new(args.width, args.height, live_cells);
 
     for gen in 0..args.generations {
+        if gen > 0 {
+            clear_screen();
+        }
         println!("Generation {}:", gen);
         print_grid(&state.live_cells, args.width, args.height, unicode);
         println!();
 
         if gen < args.generations - 1 {
+            thread::sleep(Duration::from_millis(args.delay));
             let _ = state.next();
         }
     }
