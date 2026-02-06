@@ -33,7 +33,7 @@ pub fn neighbors(point: Point, x_max: usize, y_max: usize) -> HashSet<Point> {
                 let nx_usize = nx as usize;
                 let ny_usize = ny as usize;
 
-                if nx_usize <= x_max && ny_usize <= y_max {
+                if nx_usize < x_max && ny_usize < y_max {
                     result.insert(Point::new(nx_usize, ny_usize));
                 }
             }
@@ -111,6 +111,8 @@ impl Iterator for GameState {
 
         let new_live_cells = self.live_cells(&live_neighbor_counts);
 
+        self.live_cells = new_live_cells;
+
         Some(self.live_cells.clone())
     }
 }
@@ -175,11 +177,9 @@ mod tests {
         let p = Point::new(10, 10);
         let neighbors_set = neighbors(p, 10, 10);
 
-        // Only 3 neighbors fit within bounds
-        assert_eq!(neighbors_set.len(), 3);
+        // Only 1 neighbor fits within exclusive bounds (0-9)
+        assert_eq!(neighbors_set.len(), 1);
         assert!(neighbors_set.contains(&Point::new(9, 9)));
-        assert!(neighbors_set.contains(&Point::new(9, 10)));
-        assert!(neighbors_set.contains(&Point::new(10, 9)));
     }
 
     #[test]
