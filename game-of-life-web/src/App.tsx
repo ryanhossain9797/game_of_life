@@ -18,6 +18,7 @@ function App({ width = 20, height = 20, cellSize = 20 }: GameOfLifeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
   const lifeRef = useRef<Life | null>(null);
+  const lastTickTime = useRef<number>(0);
 
   useEffect(() => {
     async function loadWasm() {
@@ -50,22 +51,40 @@ function App({ width = 20, height = 20, cellSize = 20 }: GameOfLifeProps) {
   }, [width, height]);
 
   useEffect(() => {
-    if (isRunning && lifeRef.current) {
-      animationRef.current = window.setInterval(() => {
-        const newCells: Uint32Array = lifeRef.current!.tick();
+    const animate = (currentTime: number) => {
+      if (!lastTickTime.current) {
+        lastTickTime.current = currentTime;
+      }
+
+      const timeSinceLastTick = currentTime - lastTickTime.current;
+
+      if (timeSinceLastTick >= speed && lifeRef.current) {
+        const newCells: Uint32Array = lifeRef.current.tick();
         setCells(newCells);
         setGeneration(prev => prev + 1);
-      }, speed);
+        lastTickTime.current = currentTime;
+      }
+
+      if (isRunning) {
+        animationRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    if (isRunning) {
+      animationRef.current = requestAnimationFrame(animate);
     } else {
       if (animationRef.current) {
-        clearInterval(animationRef.current);
+        cancelAnimationFrame(animationRef.current);
         animationRef.current = null;
+        lastTickTime.current = 0;
       }
     }
 
     return () => {
       if (animationRef.current) {
-        clearInterval(animationRef.current);
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+        lastTickTime.current = 0;
       }
     };
   }, [isRunning, speed]);
