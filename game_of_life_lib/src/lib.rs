@@ -14,7 +14,7 @@ impl Point {
     }
 }
 
-pub fn neighbors(point: Point, x_max: usize, y_max: usize) -> HashSet<Point> {
+fn neighbors(point: Point, x_max: usize, y_max: usize) -> HashSet<Point> {
     let mut result = HashSet::new();
 
     // Check all 8 directions
@@ -61,7 +61,6 @@ impl Generation {
     }
 }
 
-/// The core state for Conway's Game of Life
 pub struct GameState {
     generation: Generation,
 }
@@ -71,7 +70,7 @@ impl GameState {
         Self { generation }
     }
 
-    pub fn points_to_evaluate(&self) -> HashSet<Point> {
+    fn points_to_evaluate(&self) -> HashSet<Point> {
         let mut points = self.generation.live_cells.clone();
 
         for &cell in &self.generation.live_cells {
@@ -82,7 +81,7 @@ impl GameState {
         points
     }
 
-    pub fn live_neighbor_count(&self, points: &HashSet<Point>) -> HashMap<Point, usize> {
+    fn live_neighbor_count(&self, points: &HashSet<Point>) -> HashMap<Point, usize> {
         let mut neighbor_counts = HashMap::new();
 
         for &point in points {
@@ -94,7 +93,7 @@ impl GameState {
         neighbor_counts
     }
 
-    pub fn live_cells(&self, live_neighbor_counts: &HashMap<Point, usize>) -> HashSet<Point> {
+    fn live_cells(&self, live_neighbor_counts: &HashMap<Point, usize>) -> HashSet<Point> {
         let mut new_live_cells = HashSet::new();
 
         for (&point, &count) in live_neighbor_counts {
