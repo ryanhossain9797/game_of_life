@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::iter::Iterator;
 
@@ -69,6 +69,36 @@ impl GameState {
 
         points
     }
+
+    pub fn live_neighbor_count(&self, points: &HashSet<Point>) -> HashMap<Point, usize> {
+        let mut neighbor_counts = HashMap::new();
+
+        for &point in points {
+            let neighbors = neighbors(point, self.x_max, self.y_max);
+            let live_neighbors = neighbors.intersection(&self.live_cells).count();
+            neighbor_counts.insert(point, live_neighbors);
+        }
+
+        neighbor_counts
+    }
+
+    pub fn live_cells(&self, live_neighbor_counts: &HashMap<Point, usize>) -> HashSet<Point> {
+        let mut new_live_cells = HashSet::new();
+
+        for (&point, &count) in live_neighbor_counts {
+            if self.live_cells.contains(&point) {
+                if count == 2 || count == 3 {
+                    new_live_cells.insert(point);
+                }
+            } else {
+                if count == 3 {
+                    new_live_cells.insert(point);
+                }
+            }
+        }
+
+        new_live_cells
+    }
 }
 
 impl Iterator for GameState {
@@ -76,6 +106,10 @@ impl Iterator for GameState {
 
     fn next(&mut self) -> Option<Self::Item> {
         let points_to_evaluate = self.points_to_evaluate();
+
+        let live_neighbor_counts = self.live_neighbor_count(&points_to_evaluate);
+
+        let new_live_cells = self.live_cells(&live_neighbor_counts);
 
         Some(self.live_cells.clone())
     }
