@@ -97,9 +97,9 @@ fn print_grid(gen: &Generation, unicode: bool) {
                 }
             } else {
                 if unicode {
-                    print!("○ ");
+                    print!("  ");
                 } else {
-                    print!(". ");
+                    print!("  ");
                 }
             }
         }
@@ -119,7 +119,12 @@ fn main() {
 
     let unicode = matches!(args.mode, OutputMode::Unicode);
 
-    let mut state = GameState::new(args.width, args.height, live_cells);
+    let generation = Generation::new(live_cells, args.width, args.height);
+    let mut state = GameState::new(generation.clone());
+
+    print_grid(&generation, unicode);
+    println!();
+    clear_screen();
 
     for gen_idx in 0..args.generations {
         if gen_idx > 0 {
@@ -131,8 +136,6 @@ fn main() {
         print_grid(&generation, unicode);
         println!();
 
-        if gen_idx < args.generations - 1 {
-            thread::sleep(Duration::from_millis(args.delay));
-        }
+        thread::sleep(Duration::from_millis(args.delay));
     }
 }

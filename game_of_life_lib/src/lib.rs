@@ -63,25 +63,19 @@ impl Generation {
 
 /// The core state for Conway's Game of Life
 pub struct GameState {
-    x_max: usize,
-    y_max: usize,
-    live_cells: HashSet<Point>,
+    generation: Generation,
 }
 
 impl GameState {
-    pub fn new(x_max: usize, y_max: usize, initial_live_cells: HashSet<Point>) -> Self {
-        Self {
-            x_max,
-            y_max,
-            live_cells: initial_live_cells,
-        }
+    pub fn new(generation: Generation) -> Self {
+        Self { generation }
     }
 
     pub fn points_to_evaluate(&self) -> HashSet<Point> {
-        let mut points = self.live_cells.clone();
+        let mut points = self.generation.live_cells.clone();
 
-        for &cell in &self.live_cells {
-            let cell_neighbors = neighbors(cell, self.x_max, self.y_max);
+        for &cell in &self.generation.live_cells {
+            let cell_neighbors = neighbors(cell, self.generation.x_max, self.generation.y_max);
             points.extend(cell_neighbors);
         }
 
@@ -92,8 +86,8 @@ impl GameState {
         let mut neighbor_counts = HashMap::new();
 
         for &point in points {
-            let neighbors = neighbors(point, self.x_max, self.y_max);
-            let live_neighbors = neighbors.intersection(&self.live_cells).count();
+            let neighbors = neighbors(point, self.generation.x_max, self.generation.y_max);
+            let live_neighbors = neighbors.intersection(&self.generation.live_cells).count();
             neighbor_counts.insert(point, live_neighbors);
         }
 
@@ -104,7 +98,7 @@ impl GameState {
         let mut new_live_cells = HashSet::new();
 
         for (&point, &count) in live_neighbor_counts {
-            if self.live_cells.contains(&point) {
+            if self.generation.live_cells.contains(&point) {
                 if count == 2 || count == 3 {
                     new_live_cells.insert(point);
                 }
@@ -129,13 +123,10 @@ impl Iterator for GameState {
 
         let new_live_cells = self.live_cells(&live_neighbor_counts);
 
-        self.live_cells = new_live_cells;
+        self.generation =
+            Generation::new(new_live_cells, self.generation.x_max, self.generation.y_max);
 
-        Some(Generation::new(
-            self.live_cells.clone(),
-            self.x_max,
-            self.y_max,
-        ))
+        Some(self.generation.clone())
     }
 }
 
@@ -211,11 +202,12 @@ mod tests {
                 .into_iter()
                 .collect();
 
-        let state = GameState::new(10, 10, initial_cells.clone());
+        let gen = Generation::new(initial_cells.clone(), 10, 10);
+        let state = GameState::new(gen);
 
-        assert_eq!(state.x_max, 10);
-        assert_eq!(state.y_max, 10);
-        assert_eq!(&state.live_cells, &initial_cells);
+        assert_eq!(state.generation.x_max, 10);
+        assert_eq!(state.generation.y_max, 10);
+        assert_eq!(&state.generation.live_cells, &initial_cells);
     }
 
     #[test]
@@ -225,7 +217,8 @@ mod tests {
             .into_iter()
             .collect();
 
-        let state = GameState::new(5, 5, initial_cells);
+        let gen = Generation::new(initial_cells, 5, 5);
+        let state = GameState::new(gen);
         let points = state.points_to_evaluate();
 
         // Should include both live cells
