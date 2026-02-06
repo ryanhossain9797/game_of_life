@@ -43,11 +43,29 @@ pub fn neighbors(point: Point, x_max: usize, y_max: usize) -> HashSet<Point> {
     result
 }
 
-/// The core state for Conway's Game of Life
-pub struct GameState {
+/// Represents a single generation of the Game of Life
+#[derive(Debug, Clone)]
+pub struct Generation {
+    pub live_cells: HashSet<Point>,
     pub x_max: usize,
     pub y_max: usize,
-    pub live_cells: HashSet<Point>,
+}
+
+impl Generation {
+    pub fn new(live_cells: HashSet<Point>, x_max: usize, y_max: usize) -> Self {
+        Self {
+            live_cells,
+            x_max,
+            y_max,
+        }
+    }
+}
+
+/// The core state for Conway's Game of Life
+pub struct GameState {
+    x_max: usize,
+    y_max: usize,
+    live_cells: HashSet<Point>,
 }
 
 impl GameState {
@@ -102,7 +120,7 @@ impl GameState {
 }
 
 impl Iterator for GameState {
-    type Item = HashSet<Point>;
+    type Item = Generation;
 
     fn next(&mut self) -> Option<Self::Item> {
         let points_to_evaluate = self.points_to_evaluate();
@@ -113,7 +131,11 @@ impl Iterator for GameState {
 
         self.live_cells = new_live_cells;
 
-        Some(self.live_cells.clone())
+        Some(Generation::new(
+            self.live_cells.clone(),
+            self.x_max,
+            self.y_max,
+        ))
     }
 }
 

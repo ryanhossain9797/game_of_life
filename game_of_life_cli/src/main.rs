@@ -1,5 +1,5 @@
 use clap::{Parser, ValueEnum};
-use game_of_life_lib::{GameState, Point};
+use game_of_life_lib::{GameState, Generation, Point};
 use std::collections::HashSet;
 use std::fmt;
 use std::io::Write;
@@ -85,11 +85,11 @@ fn parse_cells(input: &str) -> Result<HashSet<Point>, ParseError> {
     cells.map_err(|_| ParseError)
 }
 
-fn print_grid(live_cells: &HashSet<Point>, width: usize, height: usize, unicode: bool) {
-    for y in 0..height {
-        for x in 0..width {
+fn print_grid(gen: &Generation, unicode: bool) {
+    for y in 0..gen.y_max {
+        for x in 0..gen.x_max {
             let point = Point::new(x, y);
-            if live_cells.contains(&point) {
+            if gen.live_cells.contains(&point) {
                 if unicode {
                     print!("● ");
                 } else {
@@ -121,17 +121,18 @@ fn main() {
 
     let mut state = GameState::new(args.width, args.height, live_cells);
 
-    for gen in 0..args.generations {
-        if gen > 0 {
+    for gen_idx in 0..args.generations {
+        if gen_idx > 0 {
             clear_screen();
         }
-        println!("Generation {}:", gen);
-        print_grid(&state.live_cells, args.width, args.height, unicode);
+        println!("Generation {}:", gen_idx);
+
+        let generation = state.next().unwrap();
+        print_grid(&generation, unicode);
         println!();
 
-        if gen < args.generations - 1 {
+        if gen_idx < args.generations - 1 {
             thread::sleep(Duration::from_millis(args.delay));
-            let _ = state.next();
         }
     }
 }
