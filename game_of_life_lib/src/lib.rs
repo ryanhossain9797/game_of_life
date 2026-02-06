@@ -44,7 +44,7 @@ pub fn neighbors(point: Point, x_max: usize, y_max: usize) -> HashSet<Point> {
 }
 
 /// The core state for Conway's Game of Life
-pub(crate) struct GameState {
+pub struct GameState {
     pub x_max: usize,
     pub y_max: usize,
     pub live_cells: HashSet<Point>,

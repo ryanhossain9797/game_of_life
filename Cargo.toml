@@ -1,4 +1,5 @@
 [workspace]
 members = [
     "game_of_life_lib",
+    "game_of_life_cli",
 ]
