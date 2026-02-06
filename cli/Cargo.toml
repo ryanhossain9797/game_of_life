@@ -1,7 +1,7 @@
 [package]
-name = "game_of_life_cli"
+name = "cli"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [[bin]]
 name = "life"
@@ -9,4 +9,4 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }
-game_of_life_lib = { path = "../game_of_life_lib" }
+game_of_life = { path = "../game_of_life" }

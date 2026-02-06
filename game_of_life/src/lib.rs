@@ -201,8 +201,8 @@ mod tests {
                 .into_iter()
                 .collect();
 
-        let gen = Generation::new(initial_cells.clone(), 10, 10);
-        let state = GameState::new(gen);
+        let generation = Generation::new(initial_cells.clone(), 10, 10);
+        let state = GameState::new(generation);
 
         assert_eq!(state.generation.x_max, 10);
         assert_eq!(state.generation.y_max, 10);
@@ -216,8 +216,8 @@ mod tests {
             .into_iter()
             .collect();
 
-        let gen = Generation::new(initial_cells, 5, 5);
-        let state = GameState::new(gen);
+        let generation = Generation::new(initial_cells, 5, 5);
+        let state = GameState::new(generation);
         let points = state.points_to_evaluate();
 
         // Should include both live cells

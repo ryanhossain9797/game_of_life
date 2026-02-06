@@ -1,5 +1,5 @@
 use clap::{Parser, ValueEnum};
-use game_of_life_lib::{GameState, Generation, Point};
+use game_of_life::{GameState, Generation, Point};
 use std::collections::HashSet;
 use std::fmt;
 use std::io::Write;
@@ -85,18 +85,22 @@ fn parse_cells(input: &str) -> Result<HashSet<Point>, ParseError> {
     cells.map_err(|_| ParseError)
 }
 
-fn print_grid(gen: &Generation, unicode: bool) {
-    for y in 0..gen.y_max {
-        for x in 0..gen.x_max {
+fn print_grid(generation: &Generation, unicode: bool) {
+    for y in 0..generation.y_max {
+        for x in 0..generation.x_max {
             let point = Point::new(x, y);
-            if gen.live_cells.contains(&point) {
+            if generation.live_cells.contains(&point) {
                 if unicode {
                     print!("● ");
                 } else {
                     print!("O ");
                 }
             } else {
-                print!("  ");
+                if unicode {
+                    print!("  ");
+                } else {
+                    print!("  ");
+                }
             }
         }
         println!();
